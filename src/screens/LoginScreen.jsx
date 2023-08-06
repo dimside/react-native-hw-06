@@ -10,6 +10,9 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
 } from "react-native";
+import { useDispatch, useSelector } from "react-redux";
+import { loginDB } from "../redux/auth/operations";
+import { selectUser } from "../redux/auth/selectors";
 
 export const LoginScreen = () => {
   const [email, setEmail] = useState(null);
@@ -18,19 +21,25 @@ export const LoginScreen = () => {
   const [isShowPass, setIsShowPass] = useState(true);
 
   const navigation = useNavigation();
+  const dispatch = useDispatch();
 
   const emailInput = useRef();
   const passInput = useRef();
 
+  const state = useSelector(selectUser);
+
   const handleShowPass = () => {
     setIsShowPass((current) => !current);
   };
+
   const handleSubmit = () => {
+    
+    if (!email && !password) return;
     const credentials = { email, password };
-    console.log(credentials);
+    dispatch(loginDB(credentials));
+
     setEmail(null);
     setPassword(null);
-    navigation.navigate("Home", { screen: "PostsScreen" });
   };
 
   const handleOnFocus = (type, inputName) => {

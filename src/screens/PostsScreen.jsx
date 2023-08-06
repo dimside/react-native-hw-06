@@ -1,13 +1,30 @@
 import { StyleSheet, View, Image, Text, FlatList } from "react-native";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { selectUser } from "../redux/auth/selectors";
 import UserImg from "../../assets/images/user.jpg";
-import { posts } from "../data/posts";
+
 import { Post } from "../components/Post";
+import { selectPosts, selectPostsId } from "../redux/posts/selectors";
+import {
+  getDataFromFirestore,
+  updateDataInFirestore,
+} from "../redux/posts/operations";
+import { useEffect } from "react";
 
 export const PostsScreen = () => {
+  const posts = useSelector(selectPosts);
   const { userImage, login, email } = useSelector(selectUser);
- 
+  const dispatch = useDispatch();
+  const postsId = useSelector(selectPostsId);
+
+  useEffect(() => {
+    dispatch(getDataFromFirestore());
+  }, []);
+
+  useEffect(() => {
+    updateDataInFirestore(postsId, posts);
+  }, [posts]);
+
   return (
     <View style={styles.container}>
       <View style={styles.userContainer}>

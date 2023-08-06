@@ -12,7 +12,7 @@ const Tab = createBottomTabNavigator();
 export const Home = () => {
   return (
     <Tab.Navigator
-      initialRouteName="PostScreen"
+      initialRouteName="Posts"
       screenOptions={styles.navigationStyle}
     >
       <Tab.Screen
@@ -36,7 +36,7 @@ export const Home = () => {
             <Feather name="plus" size={24} color={color} />
           ),
           tabBarStyle: {
-            display: "none"
+            display: "none",
           },
         }}
       />
@@ -47,6 +47,7 @@ export const Home = () => {
           tabBarIcon: ({ color }) => (
             <Feather name="user" size={24} color={color} />
           ),
+          headerShown: false,
         }}
       />
     </Tab.Navigator>

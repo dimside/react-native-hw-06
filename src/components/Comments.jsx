@@ -1,17 +1,45 @@
 import { Text, View, Image, StyleSheet } from "react-native";
+import userPhoto from "../../assets/images/user-photo-2.jpg";
 
-export const Comment = ({ comments }) => {
-  const { author, text, date } = comments;
+export const Comment = ({ comment, userImage, userName }) => {
+  const { author, text, date } = comment;
+
+  const ownerStyle = (type) => {
+    switch (type) {
+      case "container":
+        return userName === author
+          ? {
+              flexDirection: "row-reverse",
+            }
+          : {};
+      case "border":
+        return userName === author
+          ? {
+              borderTopLeftRadius: 6,
+              borderTopRightRadius: 0,
+            }
+          : {};
+      case "data":
+        return userName === author
+          ? {
+              alignSelf: "flex-start",
+            }
+          : {};
+      default:
+        return;
+    }
+  };
+
   return (
-    <View style={styles.commentContainer}>
-      <View style={styles.commentTextContainer}>
-        <Text style={styles.text}>{text}</Text>
-        <Text style={styles.date}>{date}</Text>
-      </View>
+    <View style={[styles.commentContainer, ownerStyle("container")]}>
       <Image
         style={styles.image}
-        source={require("../../assets/images/user-photo-2.jpg")}
+        source={userName === author ? { uri: userImage } : userPhoto}
       />
+      <View style={[styles.commentTextContainer, ownerStyle("border")]}>
+        <Text style={styles.text}>{text}</Text>
+        <Text style={[styles.date, ownerStyle("data")]}>{date}</Text>
+      </View>
     </View>
   );
 };
@@ -35,8 +63,8 @@ const styles = StyleSheet.create({
     backgroundColor: "#00000009",
     borderBottomLeftRadius: 6,
     borderBottomRightRadius: 6,
-    borderTopRightRadius: 6,
     borderTopLeftRadius: 0,
+    borderTopRightRadius: 6,
   },
 
   text: {

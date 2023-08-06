@@ -11,12 +11,22 @@ import { CommentsScreen } from "./src/screens/CommentsScreen";
 import { MapScreen } from "./src/screens/MapScreen";
 import { Home } from "./src/screens/Home";
 import { Provider } from "react-redux";
-import { store } from "./src/redux/store";
+import { PersistGate } from "redux-persist/integration/react";
+import { persistor, store } from "./src/redux/store";
 import { BackArrowIcon } from "./src/components/BackArrowIcon";
+import { useEffect, useState } from "react";
+
+import { authStateChanged } from "./src/redux/auth/operations";
 
 const MainStack = createStackNavigator();
 
 export default function App() {
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    authStateChanged(setUser);
+  }, []);
+
   const [fontsLoaded] = useFonts({
     "Roboto-Medium": require("./assets/fonts/Roboto-Medium.ttf"),
     "Roboto-Regular": require("./assets/fonts/Roboto-Regular.ttf"),
@@ -28,47 +38,52 @@ export default function App() {
 
   return (
     <Provider store={store}>
-      <NavigationContainer theme={styles.navContainer}>
-        <View style={styles.container}>
-          <ImageBackground
-            source={BcgImage}
-            resizeMode="cover"
-            style={styles.bcgImg}
-          />
-          <MainStack.Navigator initialRouteName="Login">
-            <MainStack.Screen
-              name="Home"
-              component={Home}
-              options={{ headerShown: false }}
+      <PersistGate loading={null} persistor={persistor}>
+        <NavigationContainer theme={styles.navContainer}>
+          <View style={styles.container}>
+            <ImageBackground
+              source={BcgImage}
+              resizeMode="cover"
+              style={styles.bcgImg}
             />
-            <MainStack.Screen
-              name="Registration"
-              component={RegistrationScreen}
-              options={{ headerShown: false }}
-            />
-            <MainStack.Screen
-              name="Login"
-              component={LoginScreen}
-              options={{ headerShown: false }}
-            />
-            <MainStack.Screen
-              name="Posts"
-              component={PostsScreen}
-              options={{ headerShown: false }}
-            />
-            <MainStack.Screen
-              name="Comments"
-              component={CommentsScreen}
-              options={styles.commentsScreen}
-            />
-            <MainStack.Screen
-              name="Map"
-              component={MapScreen}
-              options={{ ...styles.commentsScreen, title: "Мапа" }}
-            />
-          </MainStack.Navigator>
-        </View>
-      </NavigationContainer>
+            <MainStack.Navigator initialRouteName="Login">
+              {user ? (
+                <>
+                  <MainStack.Screen
+                    name="Home"
+                    component={Home}
+                    options={{ headerShown: false }}
+                  />
+
+                  <MainStack.Screen
+                    name="Comments"
+                    component={CommentsScreen}
+                    options={styles.commentsScreen}
+                  />
+                  <MainStack.Screen
+                    name="Map"
+                    component={MapScreen}
+                    options={{ ...styles.commentsScreen, title: "Мапа" }}
+                  />
+                </>
+              ) : (
+                <>
+                  <MainStack.Screen
+                    name="Registration"
+                    component={RegistrationScreen}
+                    options={{ headerShown: false }}
+                  />
+                  <MainStack.Screen
+                    name="Login"
+                    component={LoginScreen}
+                    options={{ headerShown: false }}
+                  />
+                </>
+              )}
+            </MainStack.Navigator>
+          </View>
+        </NavigationContainer>
+      </PersistGate>
     </Provider>
   );
 }

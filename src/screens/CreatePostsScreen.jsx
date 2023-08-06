@@ -20,7 +20,8 @@ import { Feather } from "@expo/vector-icons";
 import { MaterialIcons } from "@expo/vector-icons";
 import { Ionicons } from "@expo/vector-icons";
 import uuid from "react-native-uuid";
-import { posts } from "../data/posts";
+import { useDispatch } from "react-redux";
+import { addPost } from "../redux/posts/postsSlice";
 
 export const CreatePostsScreen = () => {
   const [photo, setPhoto] = useState(null);
@@ -33,6 +34,7 @@ export const CreatePostsScreen = () => {
   const [type, setType] = useState(Camera.Constants.Type.back);
 
   const navigation = useNavigation();
+  const dispatch = useDispatch();
 
   useEffect(() => {
     (async () => {
@@ -54,12 +56,14 @@ export const CreatePostsScreen = () => {
         latitude: location.coords.latitude,
         longitude: location.coords.longitude,
       };
+      
       setLocation(coords);
     })();
   }, []);
 
   const handleSubmit = () => {
-    if (!photo) return
+   
+    if (!photo) return;
     const post = {
       id: uuid.v4(),
       image: photo,
@@ -69,7 +73,7 @@ export const CreatePostsScreen = () => {
       comments: [],
       likes: 0,
     };
-    posts.push(post);
+    dispatch(addPost(post));
 
     handleDelete(), setLocation(null);
 
@@ -188,6 +192,7 @@ export const CreatePostsScreen = () => {
             </View>
 
             <Pressable
+              onPress={handleSubmit}
               style={[
                 styles.publishBtn,
                 photo
@@ -196,9 +201,7 @@ export const CreatePostsScreen = () => {
               ]}
               disabled={!photo}
             >
-              <Text style={styles.publishBtnText} onPress={handleSubmit}>
-                Опубліковати
-              </Text>
+              <Text style={styles.publishBtnText}>Опубліковати</Text>
             </Pressable>
             <Pressable style={styles.deleteBtn} onPress={handleDelete}>
               <Feather name="trash-2" size={24} color="#BDBDBD" />

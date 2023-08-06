@@ -6,7 +6,7 @@ import { useNavigation } from "@react-navigation/native";
 export const Post = ({ itemInfo }) => {
   const { id, description, place, location, comments, likes, image } = itemInfo;
   const navigation = useNavigation();
-
+ 
   const handleComments = () => {
     navigation.navigate("Comments", {
       image,

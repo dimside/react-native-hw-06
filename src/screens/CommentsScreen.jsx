@@ -13,15 +13,35 @@ import { useState } from "react";
 import { AntDesign } from "@expo/vector-icons";
 import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 import { Comment } from "../components/Comments";
+import { useDispatch, useSelector } from "react-redux";
+import { selectUser } from "../redux/auth/selectors";
+import { uuidv4 } from "@firebase/util";
+import { format } from "date-fns";
+import { addComment } from "../redux/posts/postsSlice";
+import { getComments } from "../redux/posts/operations";
 
 export const CommentsScreen = () => {
-  const [comment, setComment] = useState(null);
   const {
-    params: { image, comments },
+    params: { image, comments, postId },
   } = useRoute();
 
+  const [comment, setComment] = useState(null);
+  const [newComments, setNewComments] = useState(comments);
+  const dispatch = useDispatch();
+
+  const { login, userImage } = useSelector(selectUser);
+
   const hadleAddComment = () => {
-    console.log(comment);
+    const newComment = {
+      author: login,
+      date: format(new Date(), "dd MMMM, yyyy | kk:mm"),
+      id: uuidv4(),
+      text: comment,
+    };
+
+    dispatch(addComment({ postId, newComment }));
+
+    getComments(postId, setNewComments);
     setComment(null);
   };
 
@@ -31,16 +51,18 @@ export const CommentsScreen = () => {
         <View style={styles.imageContainer}>
           <Image style={styles.img} source={{ uri: image }} />
         </View>
-        
+
         <FlatList
           style={styles.commentsContainer}
-          data={comments}
-          renderItem={({ item }) => <Comment comments={item} />}
+          data={newComments}
+          renderItem={({ item }) => (
+            <Comment comment={item} userImage={userImage} userName={login} />
+          )}
           keyExtractor={(item) => item.id}
           showsVerticalScrollIndicator={false}
           showsHorizontalScrollIndicator={false}
         />
-        
+
         <KeyboardAvoidingView
           behavior={Platform.OS === "ios" ? "padding" : "height"}
         >

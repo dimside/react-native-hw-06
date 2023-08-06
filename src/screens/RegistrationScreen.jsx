@@ -14,8 +14,12 @@ import {
 import * as ImagePicker from "expo-image-picker";
 import AddBtn from "../../assets/images/addBtn.png";
 import DelBtn from "../../assets/images/delBtn.png";
-import { useDispatch } from "react-redux";
-import { registerUser } from "../redux/auth/authSlice";
+import { useDispatch, useSelector } from "react-redux";
+
+import { registerDB } from "../redux/auth/operations";
+
+import { selectPosts } from "../redux/posts/selectors";
+import { writeDataToFirestore } from "../redux/posts/operations";
 
 export const RegistrationScreen = () => {
   const [userImage, setUserImage] = useState(null);
@@ -27,6 +31,7 @@ export const RegistrationScreen = () => {
 
   const navigation = useNavigation();
   const dispatch = useDispatch();
+  const posts = useSelector(selectPosts);
 
   const loginInput = useRef();
   const emailInput = useRef();
@@ -43,7 +48,6 @@ export const RegistrationScreen = () => {
 
       if (!result.canceled) {
         setUserImage(result.assets[0].uri);
-       
       } else {
         return console.log("Add image canceled");
       }
@@ -57,15 +61,17 @@ export const RegistrationScreen = () => {
   };
 
   const handleSubmit = () => {
+    if (!login || !email || !password) {
+      return;
+    }
     const credentials = { login, email, password, userImage };
-    // console.log("cred :>>", credentials);
-    dispatch(registerUser(credentials));
-    // console.log(credentials);
+    dispatch(registerDB(credentials));
+    dispatch(writeDataToFirestore(posts));
+
     setLogin(null);
     setEmail(null);
     setPassword(null);
     setUserImage(null);
-    navigation.navigate("Home", { screen: "PostsScreen" });
   };
 
   const handleOnFocus = (type, inputName) => {
